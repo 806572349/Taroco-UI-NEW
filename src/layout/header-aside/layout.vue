@@ -13,7 +13,7 @@
           <!-- <img v-if="asideCollapse" :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/icon-only.png`">
           <img v-else :src="`${$baseUrl}image/theme/${themeActiveSetting.name}/logo/all.png`"> -->
           <h1 v-if="asideCollapse">T</h1>
-          <h2 v-else>TAROCO</h2>
+          <h2 v-else>SJ系统管理</h2>
         </div>
         <div class="toggle-aside-btn" @click="handleToggleAside">
           <d2-icon name="bars"/>

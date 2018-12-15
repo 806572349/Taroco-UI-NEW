@@ -11,7 +11,7 @@ export const loginByUsername = (username, password, code, randomStr) => {
   var grantType = 'password'
   var scope = 'server'
   return request({
-    url: '/auth/oauth/token',
+    url: '/admin/oauth/token',
     headers: {
       'Authorization': 'Basic dGFyb2NvOnRhcm9jbw=='
     },
@@ -36,7 +36,7 @@ export const getUserInfo = () => {
  */
 export const logout = (accesstoken) => {
   return request({
-    url: '/auth/authentication/removeToken',
+    url: '/admin/authentication/removeToken',
     method: 'post',
     params: { accesstoken }
   })

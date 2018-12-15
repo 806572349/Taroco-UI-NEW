@@ -49,18 +49,18 @@ service.interceptors.response.use(data => {
           errMsg = '当前操作没有权限'
           if (error.response.data && error.response.data.error === 'invalid_token') {
             errMsg = '无效的Token'
-            util.cookies.remove('token')
-            util.cookies.remove('uuid')
-            util.removeToken()
-            // 清空db中用户数据
-            store.dispatch('d2admin/db/databaseClear', {
-              dbName: 'sys',
-              user: true
-            })
-            router.push({
-              name: 'login'
-            })
           }
+          util.cookies.remove('token')
+          util.cookies.remove('uuid')
+          util.removeToken()
+          // 清空db中用户数据
+          store.dispatch('d2admin/db/databaseClear', {
+            dbName: 'sys',
+            user: true
+          })
+          router.push({
+            name: 'login'
+          })
           break
         case 403:
           errMsg = '当前操作没有权限'
