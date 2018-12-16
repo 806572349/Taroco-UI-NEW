@@ -1,17 +1,12 @@
 <template>
-  <d2-container class="page">
+  <d2-container>
     <d2-page-cover
-      title="TAROCO"
-      sub-title="Spring Cloud微服务脚手架">
-      <img src="./image/taroco.png"/>
-      <template slot="footer">
-        <div class="page__btn-group">
-          <span @click="$open('https://github.com/liuht777/Taroco')">后端地址</span> |
-          <span @click="$open('https://github.com/liuht777/Taroco-UI-NEW')">配套前端</span>
-        </div>
-      </template>
+            title="SJ"
+            sub-title="SJ-SYSTEM">
+      SJ-SYSTEM
     </d2-page-cover>
   </d2-container>
+
 </template>
 
 <script>

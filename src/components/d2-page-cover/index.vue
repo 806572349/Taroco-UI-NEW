@@ -6,11 +6,11 @@
     <p class="d2-page-cover__title">{{title}}</p>
     <p class="d2-page-cover__sub-title d2-mt-0">{{subTitle}}</p>
     <slot name="footer"/>
-    <a target="blank" href="https://github.com/liuht777/Taroco">
-      <img
-        style="position: absolute; top: 0; right: 0; border: 0; width: 150px;"
-        src="./image/darkblue@2x.png"
-        alt="Fork me on GitHub">
+    <a target="blank" href="https://www.baidu.com">
+      <!--<img-->
+        <!--style="position: absolute; top: 0; right: 0; border: 0; width: 150px;"-->
+        <!--src="./image/darkblue@2x.png"-->
+        <!--alt="Fork me on GitHub">-->
     </a>
   </div>
 </template>
