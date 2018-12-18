@@ -49,6 +49,8 @@ service.interceptors.response.use(data => {
           errMsg = '当前操作没有权限'
           if (error.response.data && error.response.data.error === 'invalid_token') {
             errMsg = '无效的Token'
+          } else if (error.response.data && error.response.data.error === 'unauthorized') {
+            errMsg = error.response.data.error_description
           }
           util.cookies.remove('token')
           util.cookies.remove('uuid')
