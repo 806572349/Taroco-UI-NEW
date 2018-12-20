@@ -51,7 +51,7 @@ service.interceptors.response.use(data => {
             errMsg = '无效的Token'
           } else if (error.response.data && error.response.data.error === 'unauthorized') {
             errMsg = error.response.data.error_description
-          } else if (error.response.data && error.response.data.code === '-200') {
+          } else if (error.response.data && error.response.data.code === -200) {
             errMsg = error.response.data.msg
           } else if (error.response.data && error.response.data.code === '-199') {
             errMsg = error.response.data.msg
