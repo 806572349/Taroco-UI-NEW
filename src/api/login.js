@@ -19,6 +19,24 @@ export const loginByUsername = (username, password, code, randomStr) => {
     params: { username, password, randomStr, code, 'grant_type': grantType, scope }
   })
 }
+/**
+ * 刷新token
+ * @param username
+ * @param password
+ * @param code
+ * @param randomStr
+ */
+export const refreshToken = (refreshtoken) => {
+  var grantType = 'refresh_token'
+  return request({
+    url: '/admin/oauth/token',
+    headers: {
+      'Authorization': 'Basic dGFyb2NvOnRhcm9jbw=='
+    },
+    method: 'post',
+    params: { 'refresh_token': refreshtoken, 'grant_type': grantType }
+  })
+}
 
 /**
  * 获取用户信息

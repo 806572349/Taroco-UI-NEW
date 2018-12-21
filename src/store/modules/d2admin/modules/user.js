@@ -104,6 +104,22 @@ export default {
       })
     },
     /**
+     *
+     * @param state
+     * @param refreshToken
+     * @constructor
+     */
+    SET_ACCESS_TOKEN_EXPIRETIME (state, expiretime) {
+      state.expiretime = expiretime
+      // 持久化
+      this.dispatch('d2admin/db/set', {
+        dbName: 'sys',
+        path: 'user.expiretime',
+        value: expiretime,
+        user: true
+      })
+    },
+    /**
      * 设置菜单
      */
     SET_MENU (state, menu) {

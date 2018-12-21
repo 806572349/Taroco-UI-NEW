@@ -24,9 +24,11 @@ export default {
           util.cookies.set('uuid', res.data.userId)
           util.cookies.set('token', res.data.access_token)
           util.setToken(res.data.access_token)
+          // let milliseconds = res.data.expires_in+ new Date().getMilliseconds();
           // 设置 vuex token信息
           commit('d2admin/user/SET_ACCESS_TOKEN', res.data.access_token, { root: true })
           commit('d2admin/user/SET_REFRESH_TOKEN', res.data.refresh_token, { root: true })
+          // commit('d2admin/user/SET_ACCESS_TOKEN_EXPIRETIME',milliseconds, { root: true })
           // 用户登陆后从持久化数据加载一系列的设置
           commit('load')
           // 用户登陆后查询用户信息: 角色 数据权限
