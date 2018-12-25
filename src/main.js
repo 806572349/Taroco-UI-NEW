@@ -9,7 +9,8 @@ import store from '@/store/index'
 import i18n from './i18n'
 // 核心插件
 import d2Admin from '@/plugin/d2admin'
-
+// d2crud
+import D2Crud from '@d2-projects/d2-crud'
 // 菜单和路由设置
 import router from './router'
 import { frameInRoutes } from '@/router/routes'
@@ -18,7 +19,8 @@ import * as filters from './filters'
 
 // 核心插件
 Vue.use(d2Admin)
-
+// D2表单操作
+Vue.use(D2Crud)
 // 全局filter
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
