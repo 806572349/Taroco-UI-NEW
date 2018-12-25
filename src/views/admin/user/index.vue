@@ -226,7 +226,7 @@ export default {
         ],
         role: [
           {
-            required: true,
+            required: false,
             message: '请选择角色',
             trigger: 'blur'
           }
@@ -326,14 +326,18 @@ export default {
       this.dialogFormVisible = true
     },
     handleUpdate (row) {
+      console.log(row.roleList.length)
+      for (var i = 0; i < row.roleList.length; i++) {
+        console.log(row.roleList[i].roleId)
+        this.role[i] = row.roleList[i].roleId
+      }
+      console.log(this.role)
       getObj(row.userId).then(response => {
         this.form = response.data
         this.dialogFormVisible = true
         this.dialogStatus = 'update'
-        this.role = []
-        for (var i = 0; i < row.roleList.length; i++) {
-          this.role[i] = row.roleList[i].roleId
-        }
+        // this.role = []
+
         deptRoleList(response.data.deptId).then(response => {
           this.rolesOptions = response.data
         })
@@ -365,6 +369,7 @@ export default {
     },
     update (formName) {
       const set = this.$refs
+      console.log('编辑', this.role)
       this.form.role = this.role
       set[formName].validate(valid => {
         if (valid) {

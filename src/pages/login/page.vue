@@ -105,6 +105,7 @@ export default {
         if (valid) {
           // 登陆
           this.login(Object.assign({vm: this}, this.formLogin));
+          this.refreshCode()
         } else {
           // 登陆表单校验失败
           this.$message.error('表单校验失败')
