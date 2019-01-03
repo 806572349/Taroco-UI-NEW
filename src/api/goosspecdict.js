@@ -7,3 +7,11 @@ export function list (query) {
     params: query
   })
 }
+
+export function update (query) {
+  return request({
+    url: '/admin/bizgoodsspecificationdict/up',
+    method: 'post',
+    data: query
+  })
+}

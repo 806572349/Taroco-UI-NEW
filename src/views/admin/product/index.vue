@@ -29,11 +29,14 @@
                 :form-options="formoptions"
                 :columns="columns"
                 :data="data"
+                :rowHandle="rowHandle"
+                :edit-template="editTemplate"
                 :loading="loading"
                 add-title="新增规格"
                 @dialog-open="handleDialogOpen"
                 @dialog-cancel="handleDialogCancel"
                 @row-add="handleRowAdd"
+                @row-edit="handleRowEdit"
                 :add-template="addTemplate"
         >
         </d2-crud>
@@ -55,10 +58,15 @@
 </template>
 
 <script>
-import { list } from '@/api/goosspecdict.js'
+import { list, update } from '@/api/goosspecdict.js'
 import dayjs from 'dayjs'
+
+import MyTag from '../../../pages/mytag/mytag'
 export default {
   name: 'index',
+  components: {
+    MyTag
+  },
   data () {
     return {
       listQuery: {
@@ -97,9 +105,8 @@ export default {
           title: '状态',
           key: 'status',
           showOverflowTooltip: true,
-          formatter (row, column, cellValue, index) {
-            console.log('状态值', cellValue)
-            return cellValue === 1 ? '有效' : '无效'
+          component: {
+            name: MyTag
           }
         },
         {
@@ -113,6 +120,38 @@ export default {
         labelPosition: 'left',
         saveLoading: false
       },
+      editTemplate: {
+        name: {
+          title: '规格名称',
+          value: ''
+        },
+        sortOrder: {
+          title: '排序',
+          value: ''
+        },
+        remark: {
+          title: '备注',
+          value: ''
+        },
+        status: {
+          title: '有效',
+          value: '',
+          component: {
+            span: 30,
+            name: 'el-select',
+            options: [
+              {
+                value: 1,
+                label: '有效'
+              },
+              {
+                value: 0,
+                label: '无效'
+              }
+            ]
+          }
+        }
+      },
       addTemplate: {
         name: {
           title: '规格名称',
@@ -120,7 +159,7 @@ export default {
         },
         sortOrder: {
           title: '排序',
-          value: '1'
+          value: 1
         },
         status: {
           title: '有效',
@@ -154,12 +193,32 @@ export default {
       loading: false,
       pagination: {
         currentPage: 1,
-        pageSize: 1,
+        pageSize: 10,
         total: 0,
         layout: 'total, sizes, prev, pager, next, jumper',
-        pageSizes: [1, 20, 30, 40, 50, 100]
+        pageSizes: [10, 20, 30, 40, 50, 100]
       },
-      dialogFormVisible: false
+      dialogFormVisible: false,
+      rowHandle: {
+        columnHeader: '操作',
+        edit: {
+          icon: 'el-icon-edit',
+          text: '编辑',
+          size: 'small',
+          show (index, row) {
+            if (row.showEditButton) {
+              return true
+            }
+            return true
+          },
+          disabled (index, row) {
+            if (row.forbidEdit) {
+              return true
+            }
+            return false
+          }
+        }
+      }
 
     }
   },
@@ -229,6 +288,26 @@ export default {
         // done可以传入一个对象来修改提交的某个字段
         done({
           address: '我是通过done事件传入的数据！'
+        })
+        this.formOptions.saveLoading = false
+      }, 300)
+    },
+    handleRowEdit ({ index, row }, done) {
+      this.formOptions.saveLoading = true
+      setTimeout(() => {
+        console.log(index)
+        console.log(row)
+        update(row).then(resp => {
+          console.log(resp)
+          this.$message({
+            message: '编辑成功',
+            type: 'success'
+          })
+        })
+
+        // done可以传入一个对象来修改提交的某个字段
+        done({
+          // address: '我是通过done事件传入的数据！'
         })
         this.formOptions.saveLoading = false
       }, 300)
