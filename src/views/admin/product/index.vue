@@ -6,13 +6,13 @@
                     :inline="true"
                     size="mini"
                     style="margin-bottom: -18px;">
-                <el-form-item label="商品规格名称" prop="type">
-                    <el-input> </el-input>
+                <el-form-item label="商品规格名称" prop="name">
+                    <el-input v-model="listQuery.name"> </el-input>
                 </el-form-item>
-                <el-form-item label="状态" prop="type">
-                    <el-select  filterable placeholder="请选择" clearable>
-                        <el-option label="有效" value="1"></el-option>
-                        <el-option label="无效" value="0"></el-option>
+                <el-form-item label="状态" prop="status">
+                    <el-select v-model="listQuery.status" filterable placeholder="请选择" clearable>
+                        <el-option label="有效" value=1></el-option>
+                        <el-option label="无效" value=0></el-option>
                     </el-select>
                 </el-form-item>
                 <el-form-item>
@@ -20,21 +20,37 @@
                 </el-form-item>
 
                 <el-form-item style="float: right">
-                    <el-button style="float: right" @click="handleCreate" type="primary" icon="el-icon-plus" >新 增</el-button>
+                    <el-button style="float: right" @click="addRow" type="primary" icon="el-icon-plus" >新 增</el-button>
                 </el-form-item>
             </el-form>
         </template>
         <d2-crud
                 ref="d2Crud"
-                :options="options"
+                :form-options="formoptions"
                 :columns="columns"
                 :data="data"
                 :loading="loading"
-                :pagination="pagination"
-                @pagination-current-change="paginationCurrentChange"
-                @pagination-size-change="paginationSizeChange"
+                add-title="新增规格"
+                @dialog-open="handleDialogOpen"
+                @dialog-cancel="handleDialogCancel"
+                @row-add="handleRowAdd"
+                :add-template="addTemplate"
         >
         </d2-crud>
+        <!-- footer 分页条 -->
+        <template slot="footer">
+            <el-pagination
+                    background
+                    @size-change="paginationSizeChange"
+                    @current-change="paginationCurrentChange"
+                    :current-page.sync="pagination.currentPage"
+                    :page-sizes="pagination.pageSizes"
+                    :page-size="pagination.pageSize"
+                    :layout="pagination.layout"
+                    :total="pagination.total"
+                    style="margin: -10px;">
+            </el-pagination>
+        </template>
     </d2-container>
 </template>
 
@@ -45,6 +61,9 @@ export default {
   name: 'index',
   data () {
     return {
+      listQuery: {
+        status: undefined
+      },
       columns: [
         {
           title: 'id',
@@ -89,23 +108,58 @@ export default {
         }
 
       ],
-      data: [],
-      listquery: {
-        size: 10,
-        current: 1
-
+      formOptions: {
+        labelWidth: '80px',
+        labelPosition: 'left',
+        saveLoading: false
       },
-      options: {
-        border: true
+      addTemplate: {
+        name: {
+          title: '规格名称',
+          value: ''
+        },
+        sortOrder: {
+          title: '排序',
+          value: '1'
+        },
+        status: {
+          title: '有效',
+          value: 1,
+          component: {
+            span: 30,
+            name: 'el-select',
+            options: [
+              {
+                value: 1,
+                label: '有效'
+              },
+              {
+                value: 0,
+                label: '无效'
+              }
+            ]
+          }
+        },
+        remark: {
+          title: '备注',
+          value: ''
+        }
+      },
+      data: [],
+      formoptions: {
+        labelWidth: '80px',
+        labelPosition: 'left',
+        saveLoading: false
       },
       loading: false,
       pagination: {
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 1,
         total: 0,
-        layout: 'prev, pager, next, total,sizes,slot',
-        pageSizes: [10, 20, 30, 40, 50, 100]
-      }
+        layout: 'total, sizes, prev, pager, next, jumper',
+        pageSizes: [1, 20, 30, 40, 50, 100]
+      },
+      dialogFormVisible: false
 
     }
   },
@@ -120,7 +174,9 @@ export default {
       this.loading = true
       list({
         size: this.pagination.pageSize,
-        current: this.pagination.currentPage
+        current: this.pagination.currentPage,
+        status: this.listQuery.status,
+        name: this.listQuery.name
       }).then(respone => {
         this.loading = false
         this.data = respone.data.records
@@ -141,9 +197,42 @@ export default {
       this.getList()
     },
     handleFilter () {
-
+      this.getList()
+    },
+    // 普通的新增
+    addRow () {
+      this.$refs.d2Crud.showDialog({
+        mode: 'add'
+      })
+    },
+    handleDialogOpen ({ mode }) {
+      this.$message({
+        message: '打开模态框，模式为：' + mode,
+        type: 'success'
+      })
+    },
+    handleDialogCancel (done) {
+      this.$message({
+        message: '取消保存',
+        type: 'warning'
+      })
+      done()
+    },
+    handleRowAdd (row, done) {
+      this.formOptions.saveLoading = true
+      setTimeout(() => {
+        console.log(row)
+        this.$message({
+          message: '保存成功',
+          type: 'success'
+        })
+        // done可以传入一个对象来修改提交的某个字段
+        done({
+          address: '我是通过done事件传入的数据！'
+        })
+        this.formOptions.saveLoading = false
+      }, 300)
     }
-
   }
 }
 
