@@ -6,7 +6,7 @@
                     :inline="true"
                     size="mini"
                     style="margin-bottom: -18px;">
-                <el-form-item label="商品规格名称" prop="name">
+                <el-form-item label="商品名称" prop="goodsName">
                     <el-input v-model="listQuery.name"> </el-input>
                 </el-form-item>
                 <el-form-item label="状态" prop="status">
@@ -32,7 +32,7 @@
                 :rowHandle="rowHandle"
                 :edit-template="editTemplate"
                 :loading="loading"
-                add-title="新增规格"
+                add-title="新增商品"
                 @dialog-open="handleDialogOpen"
                 @dialog-cancel="handleDialogCancel"
                 @row-add="handleRowAdd"
@@ -58,14 +58,16 @@
 </template>
 
 <script>
-import { list, update, add } from '@/api/goosspecdict.js'
+import { list, update, add } from '@/api/goods.js'
 import dayjs from 'dayjs'
 
-import MyTag from '../../../pages/mytag/mytag'
+import MyTag from '../../../../pages/mytag/mytag'
+
+import images from '../../../../pages/mytag/image'
 export default {
   name: 'index',
   components: {
-    MyTag
+    MyTag, images
   },
   data () {
     return {
@@ -74,24 +76,41 @@ export default {
       },
       columns: [
         {
-          title: 'id',
-          key: 'id'
+          title: '商品名称',
+          key: 'goodsName',
+          showOverflowTooltip: true
         },
         {
-          title: '商品规格名称',
-          key: 'name'
+          title: '商品编码',
+          key: 'goodsCode'
         },
         {
-          title: '排序',
-          key: 'sortOrder'
+          title: '展示价格(单位元)',
+          key: 'displayPrice',
+          showOverflowTooltip: true
         },
+        {
+          title: '展示价格(单位元)',
+          key: 'actualPrice',
+          showOverflowTooltip: true
+
+        },
+        {
+          title: '商品主图',
+          key: 'primaryPicUrl',
+          showOverflowTooltip: true,
+          component: {
+            name: images
+          }
+        },
+
         {
           title: '创建时间',
           key: 'createTime',
+          showOverflowTooltip: true,
           formatter (row, column, cellValue, index) {
             return dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss')
           }
-
         },
         {
           title: '更新时间',
@@ -108,12 +127,7 @@ export default {
           component: {
             name: MyTag
           }
-        },
-        {
-          title: '备注',
-          key: 'remark'
         }
-
       ],
       formOptions: {
         labelWidth: '80px',
