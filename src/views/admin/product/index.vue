@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import { list, update } from '@/api/goosspecdict.js'
+import { list, update, add } from '@/api/goosspecdict.js'
 import dayjs from 'dayjs'
 
 import MyTag from '../../../pages/mytag/mytag'
@@ -281,14 +281,18 @@ export default {
       this.formOptions.saveLoading = true
       setTimeout(() => {
         console.log(row)
-        this.$message({
-          message: '保存成功',
-          type: 'success'
+        add(row).then(resp => {
+          console.log(resp)
+          done({
+            id: resp.data.id
+          })
+          this.$message({
+            message: '保存成功',
+            type: 'success'
+          })
         })
         // done可以传入一个对象来修改提交的某个字段
-        done({
-          address: '我是通过done事件传入的数据！'
-        })
+
         this.formOptions.saveLoading = false
       }, 300)
     },

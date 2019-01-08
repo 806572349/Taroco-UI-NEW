@@ -15,3 +15,11 @@ export function update (query) {
     data: query
   })
 }
+
+export function add (query) {
+  return request({
+    url: '/admin/bizgoodsspecificationdict/add',
+    method: 'post',
+    data: query
+  })
+}
