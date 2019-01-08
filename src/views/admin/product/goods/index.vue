@@ -7,7 +7,7 @@
                     size="mini"
                     style="margin-bottom: -18px;">
                 <el-form-item label="商品名称" prop="goodsName">
-                    <el-input v-model="listQuery.name"> </el-input>
+                    <el-input v-model="listQuery.goodsName"> </el-input>
                 </el-form-item>
                 <el-form-item label="状态" prop="status">
                     <el-select v-model="listQuery.status" filterable placeholder="请选择" clearable>
@@ -38,6 +38,7 @@
                 @row-add="handleRowAdd"
                 @row-edit="handleRowEdit"
                 :add-template="addTemplate"
+                :options="options"
         >
         </d2-crud>
         <!-- footer 分页条 -->
@@ -72,13 +73,15 @@ export default {
   data () {
     return {
       listQuery: {
-        status: undefined
+        status: undefined,
+        goodsName: undefined
       },
       columns: [
         {
           title: '商品名称',
           key: 'goodsName',
-          showOverflowTooltip: true
+          showOverflowTooltip: true,
+          width: '180'
         },
         {
           title: '商品编码',
@@ -86,13 +89,11 @@ export default {
         },
         {
           title: '展示价格(单位元)',
-          key: 'displayPrice',
-          showOverflowTooltip: true
+          key: 'displayPrice'
         },
         {
           title: '展示价格(单位元)',
-          key: 'actualPrice',
-          showOverflowTooltip: true
+          key: 'actualPrice'
 
         },
         {
@@ -204,6 +205,9 @@ export default {
         labelPosition: 'left',
         saveLoading: false
       },
+      options: {
+        border: true
+      },
       loading: false,
       pagination: {
         currentPage: 1,
@@ -249,7 +253,7 @@ export default {
         size: this.pagination.pageSize,
         current: this.pagination.currentPage,
         status: this.listQuery.status,
-        name: this.listQuery.name
+        goodsName: this.listQuery.goodsName
       }).then(respone => {
         this.loading = false
         this.data = respone.data.records
