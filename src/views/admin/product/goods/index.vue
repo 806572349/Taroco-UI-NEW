@@ -7,7 +7,7 @@
                     size="mini"
                     style="margin-bottom: -18px;">
                 <el-form-item label="商品名称" prop="goodsName">
-                    <el-input v-model="listQuery.goodsName"> </el-input>
+                    <el-input v-model="listQuery.goodsName"></el-input>
                 </el-form-item>
                 <el-form-item label="状态" prop="status">
                     <el-select v-model="listQuery.status" filterable placeholder="请选择" clearable>
@@ -16,11 +16,11 @@
                     </el-select>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="default" icon="el-icon-search" @click="handleFilter" >搜 索</el-button>
+                    <el-button type="default" icon="el-icon-search" @click="handleFilter">搜 索</el-button>
                 </el-form-item>
 
                 <el-form-item style="float: right">
-                    <el-button style="float: right" @click="addRow" type="primary" icon="el-icon-plus" >新 增</el-button>
+                    <el-button style="float: right" @click="handleCustomEvent" type="primary" icon="el-icon-plus">新 增</el-button>
                 </el-form-item>
             </el-form>
         </template>
@@ -30,17 +30,60 @@
                 :columns="columns"
                 :data="data"
                 :rowHandle="rowHandle"
-                :edit-template="editTemplate"
                 :loading="loading"
-                add-title="新增商品"
-                @dialog-open="handleDialogOpen"
-                @dialog-cancel="handleDialogCancel"
-                @row-add="handleRowAdd"
-                @row-edit="handleRowEdit"
-                :add-template="addTemplate"
                 :options="options"
+                @custom-emit-1="handleCustomEvent"
         >
         </d2-crud>
+
+        <!--表单-->
+        <el-dialog title="编辑商品" :visible.sync="dialogTableVisible">
+            <el-form ref="form" :model="form" label-width="80px">
+                <el-form-item label="活动名称">
+                    <el-input v-model="form.name"></el-input>
+                </el-form-item>
+                <el-form-item label="活动区域">
+                    <el-select v-model="form.region" placeholder="请选择活动区域">
+                        <el-option label="区域一" value="shanghai"></el-option>
+                        <el-option label="区域二" value="beijing"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="活动时间">
+                    <el-col :span="11">
+                        <el-date-picker type="date" placeholder="选择日期" v-model="form.date1" style="width: 100%;"></el-date-picker>
+                    </el-col>
+                    <el-col class="line" :span="2">-</el-col>
+                    <el-col :span="11">
+                        <el-time-picker type="fixed-time" placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="即时配送">
+                    <el-switch v-model="form.delivery"></el-switch>
+                </el-form-item>
+                <el-form-item label="活动性质">
+                    <el-checkbox-group v-model="form.type">
+                        <el-checkbox label="美食/餐厅线上活动" name="type"></el-checkbox>
+                        <el-checkbox label="地推活动" name="type"></el-checkbox>
+                        <el-checkbox label="线下主题活动" name="type"></el-checkbox>
+                        <el-checkbox label="单纯品牌曝光" name="type"></el-checkbox>
+                    </el-checkbox-group>
+                </el-form-item>
+                <el-form-item label="特殊资源">
+                    <el-radio-group v-model="form.resource">
+                        <el-radio label="线上品牌商赞助"></el-radio>
+                        <el-radio label="线下场地免费"></el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="活动形式">
+                    <el-input type="textarea" v-model="form.desc"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" >立即创建</el-button>
+                    <el-button>取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
         <!-- footer 分页条 -->
         <template slot="footer">
             <el-pagination
@@ -59,12 +102,13 @@
 </template>
 
 <script>
-import { list, update, add } from '@/api/goods.js'
+import {list, update, add} from '@/api/goods.js'
 import dayjs from 'dayjs'
 
 import MyTag from '../../../../pages/mytag/mytag'
 
 import images from '../../../../pages/mytag/image'
+
 export default {
   name: 'index',
   components: {
@@ -75,6 +119,17 @@ export default {
       listQuery: {
         status: undefined,
         goodsName: undefined
+      },
+      dialogTableVisible: false,
+      form: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
       },
       columns: [
         {
@@ -88,13 +143,18 @@ export default {
           key: 'goodsCode'
         },
         {
-          title: '展示价格(单位元)',
-          key: 'displayPrice'
+          title: '吊牌价',
+          key: 'displayPrice',
+          formatter (row, column, cellValue, index) {
+            return cellValue + '元'
+          }
         },
         {
-          title: '展示价格(单位元)',
-          key: 'actualPrice'
-
+          title: '销售价',
+          key: 'actualPrice',
+          formatter (row, column, cellValue, index) {
+            return cellValue + '元'
+          }
         },
         {
           title: '商品主图',
@@ -104,18 +164,10 @@ export default {
             name: images
           }
         },
-
         {
-          title: '创建时间',
-          key: 'createTime',
-          showOverflowTooltip: true,
-          formatter (row, column, cellValue, index) {
-            return dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss')
-          }
-        },
-        {
-          title: '更新时间',
+          title: '发布时间',
           key: 'updateTime',
+          width: '180',
           showOverflowTooltip: true,
           formatter (row, column, cellValue, index) {
             return dayjs(cellValue).format('YYYY-MM-DD HH:mm:ss')
@@ -136,21 +188,25 @@ export default {
         saveLoading: false
       },
       editTemplate: {
-        name: {
+        goodsName: {
           title: '规格名称',
           value: ''
         },
-        sortOrder: {
-          title: '排序',
+        displayPrice: {
+          title: '展示价格',
           value: ''
         },
-        remark: {
-          title: '备注',
+        actualPrice: {
+          title: '实际价格',
+          value: 1
+        },
+        primaryPicUrl: {
+          title: '商品主图',
           value: ''
         },
         status: {
           title: '有效',
-          value: '',
+          value: 1,
           component: {
             span: 30,
             name: 'el-select',
@@ -165,16 +221,28 @@ export default {
               }
             ]
           }
+        },
+        remark: {
+          title: '备注',
+          value: ''
         }
       },
       addTemplate: {
-        name: {
+        goodsName: {
           title: '规格名称',
           value: ''
         },
-        sortOrder: {
-          title: '排序',
+        displayPrice: {
+          title: '展示价格',
+          value: ''
+        },
+        actualPrice: {
+          title: '实际价格',
           value: 1
+        },
+        primaryPicUrl: {
+          title: '商品主图',
+          value: ''
         },
         status: {
           title: '有效',
@@ -206,7 +274,7 @@ export default {
         saveLoading: false
       },
       options: {
-        border: true
+        border: false
       },
       loading: false,
       pagination: {
@@ -219,23 +287,21 @@ export default {
       dialogFormVisible: false,
       rowHandle: {
         columnHeader: '操作',
-        edit: {
-          icon: 'el-icon-edit',
-          text: '编辑',
-          size: 'small',
-          show (index, row) {
-            if (row.showEditButton) {
-              return true
-            }
-            return true
+        width: 300,
+        custom: [
+          {
+            text: '编辑',
+            type: 'success',
+            size: 'small',
+            emit: 'custom-emit-1'
           },
-          disabled (index, row) {
-            if (row.forbidEdit) {
-              return true
-            }
-            return false
+          {
+            text: '规格编辑',
+            type: 'warning',
+            size: 'small',
+            emit: 'custom-emit-1'
           }
-        }
+        ]
       }
 
     }
@@ -264,6 +330,11 @@ export default {
         console.error(err)
       })
     },
+    handleCustomEvent ({index, row}) {
+      console.log(index)
+      console.log(row)
+      this.dialogTableVisible = true
+    },
     paginationCurrentChange (currentPage) {
       this.pagination.currentPage = currentPage
       this.getList()
@@ -282,11 +353,12 @@ export default {
         mode: 'add'
       })
     },
-    handleDialogOpen ({ mode }) {
-      this.$message({
-        message: '打开模态框，模式为：' + mode,
-        type: 'success'
-      })
+    handleDialogOpen ({mode}) {
+      // this.$message({
+      //     message: '打开模态框，模式为：' + mode,
+      //     type: 'success'
+      // })
+      this.dialogTableVisible = true
     },
     handleDialogCancel (done) {
       this.$message({
@@ -314,7 +386,7 @@ export default {
         this.formOptions.saveLoading = false
       }, 300)
     },
-    handleRowEdit ({ index, row }, done) {
+    handleRowEdit ({index, row}, done) {
       this.formOptions.saveLoading = true
       setTimeout(() => {
         console.log(index)
