@@ -22,13 +22,15 @@
             </el-form-item>
             <el-form-item prop="code">
               <el-input type="text" v-model="formLogin.code" placeholder="- - - -">
-                <template slot="prepend">验证码</template>
+                <!--<template slot="prepend">验证码</template>-->
+                <d2-icon slot="prepend" name="keyboard-o"></d2-icon>
                 <template slot="append">
+                  <div></div>
                   <img class="login-code" :src="code.src" @click="refreshCode">
                 </template>
               </el-input>
             </el-form-item>
-            <el-button @click="submit" type="primary" class="button-login">登录</el-button>
+            <el-button @click="submit" type="primary"  class="button-login">登录</el-button>
           </el-form>
         </el-card>
       </div>
@@ -105,12 +107,13 @@ export default {
         if (valid) {
           // 登陆
           this.login(Object.assign({vm: this}, this.formLogin));
-          this.refreshCode()
         } else {
           // 登陆表单校验失败
           this.$message.error('表单校验失败')
         }
       })
+      this.refreshCode()
+
     }
   }
 }

@@ -20,7 +20,8 @@
                 </el-form-item>
 
                 <el-form-item style="float: right">
-                    <el-button style="float: right" @click="handleCustomEvent" type="primary" icon="el-icon-plus">新 增</el-button>
+                    <el-button style="float: right" @click="handleCustomEvent" type="primary" icon="el-icon-plus">新 增
+                    </el-button>
                 </el-form-item>
             </el-form>
         </template>
@@ -37,38 +38,59 @@
         </d2-crud>
 
         <!--表单-->
-        <el-dialog title="编辑商品" :visible.sync="dialogTableVisible" >
-            <el-form ref="form" :model="form" label-width="60px" :label-position="labelPosition">
-                <el-form-item label="商品名称">
-                    <el-input v-model="form.goodsName"></el-input>
+        <el-dialog title="编辑商品" :visible.sync="dialogTableVisible" @close="formdialogclose">
+            <el-form ref="goodsform" :model="goodsform" label-width="100px" :label-position="labelPosition">
+                <el-form-item label="商品名称:">
+                    <el-col :span="11">
+                        <el-input v-model="goodsform.goodsName"></el-input>
+                    </el-col>
                 </el-form-item>
-                <el-form-item label="商品描述">
-                    <el-input type="textarea" v-model="form.goodsDesc"></el-input>
+                <el-form-item label="商品描述:">
+                    <el-input type="textarea" v-model="goodsform.goodsDesc"></el-input>
                 </el-form-item>
-                <el-form-item label="商品吊牌价">
-                    <el-input v-model="form.displayPrice"></el-input>
+                <el-form-item label="商品吊牌价:">
+                    <el-col :span="11">
+                        <el-input v-model="goodsform.displayPrice"></el-input>
+                    </el-col>
                 </el-form-item>
-                <el-form-item label="商品销售价">
-                    <el-input v-model="form.actualPrice"></el-input>
+                <el-form-item label="商品销售价:">
+                    <el-col :span="11">
+                        <el-input v-model="goodsform.actualPrice"></el-input>
+                    </el-col>
                 </el-form-item>
-                <el-form-item label="商品主图">
-                    <!--<el-input v-model="form.primaryPicUrl"></el-input>-->
+                <el-form-item label="商品单位:">
+                    <el-col :span='11'>
+                        <el-input v-model="goodsform.goodsUnit"></el-input>
+                    </el-col>
+                </el-form-item>
+                <el-form-item label="状态:">
+                    <el-radio-group v-model="goodsform.status" @change="statusChange" size="medium">
+                        <el-radio border :label="1">上架</el-radio>
+                        <el-radio border :label="0">下架</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否多规格:">
+                    <el-radio-group v-model="goodsform.isSku" @change="isSkuChange" size="medium">
+                        <el-radio border :label="0">默认</el-radio>
+                        <el-radio border :label="1">多规格</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="商品主图:">
                     <el-upload
                             class="avatar-uploader"
                             action="https://jsonplaceholder.typicode.com/posts/"
                             :show-file-list="false"
                             :on-success="handleAvatarSuccess"
                             :before-upload="beforeAvatarUpload">
-                        <img v-if="form.primaryPicUrl" :src="form.primaryPicUrl" class="avatar">
+                        <img v-if="goodsform.primaryPicUrl" :src="goodsform.primaryPicUrl" class="avatar">
                         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
                     </el-upload>
-
                 </el-form-item>
-                <el-form-item label="商品单位">
-                    <el-input v-model="form.goodsUnit"></el-input>
+                <el-form-item label="商品内容:">
+                    <d2-ueditor v-model="goodsform.goodsContent"/>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" >立即创建</el-button>
+                    <el-button type="primary" @click="createGoods">立即创建</el-button>
                     <el-button>取消</el-button>
                 </el-form-item>
             </el-form>
@@ -89,6 +111,7 @@
             </el-pagination>
         </template>
     </d2-container>
+
 </template>
 
 <script>
@@ -96,7 +119,6 @@ import {list, update, add} from '@/api/goods.js'
 import dayjs from 'dayjs'
 
 import MyTag from '../../../../pages/mytag/mytag'
-
 import images from '../../../../pages/mytag/image'
 
 export default {
@@ -110,16 +132,19 @@ export default {
         status: undefined,
         goodsName: undefined
       },
-      labelPosition: 'top',
+      labelPosition: 'right',
       dialogTableVisible: false,
-      form: {
+      goodsform: {
         id: undefined,
         goodsName: undefined,
         goodsDesc: undefined,
         displayPrice: undefined,
         actualPrice: undefined,
-        primaryPicUrl: 'http://yanxuan.nosdn.127.net/46bcddbc57e70bf5f36bdff9c9195c65.png',
-        goodsUnit: undefined
+        primaryPicUrl: undefined,
+        goodsUnit: undefined,
+        status: 1,
+        isSku: 0,
+        goodsContent: ''
       },
       columns: [
         {
@@ -263,6 +288,19 @@ export default {
     this.getList()
   },
   methods: {
+    /* 创建商品 */
+    createGoods () {
+      console.log(this.goodsform)
+    },
+    statusChange (label) {
+      console.log('statusChange', label)
+    },
+    isSkuChange (label) {
+      console.log('isSkuChange', label)
+    },
+    formdialogclose () {
+      console.log('formdialogclose关闭')
+    },
     getList () {
       this.loading = true
       list({
@@ -296,8 +334,6 @@ export default {
       return isJPG && isLt2M
     },
     handleCustomEvent ({index, row}) {
-      console.log(index)
-      console.log(row)
       this.dialogTableVisible = true
     },
     paginationCurrentChange (currentPage) {
@@ -369,7 +405,6 @@ export default {
     }
   }
 }
-
 </script>
 
 <style scoped>
@@ -380,9 +415,11 @@ export default {
         position: relative;
         overflow: hidden;
     }
+
     .avatar-uploader .el-upload:hover {
         border-color: #409EFF;
     }
+
     .avatar-uploader-icon {
         font-size: 28px;
         color: #8c939d;
@@ -391,6 +428,7 @@ export default {
         line-height: 178px;
         text-align: center;
     }
+
     .avatar {
         width: 178px;
         height: 178px;

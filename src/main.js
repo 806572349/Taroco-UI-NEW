@@ -16,11 +16,14 @@ import router from './router'
 import { frameInRoutes } from '@/router/routes'
 // 全局filter
 import * as filters from './filters'
-
+import VueUeditorWrap from 'vue-ueditor-wrap'
 // 核心插件
 Vue.use(d2Admin)
 // D2表单操作
 Vue.use(D2Crud)
+//
+Vue.component('VueUeditorWrap', VueUeditorWrap)
+
 // 全局filter
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])
