@@ -258,8 +258,8 @@ export default {
         create: '新增用户'
       },
       isDisabled: {
-        0: false,
-        1: true
+        1: false,
+        0: true
       },
       tableKey: 0
     }
@@ -270,9 +270,8 @@ export default {
   filters: {
     statusFilter (status) {
       const statusMap = {
-        0: '有效',
-        1: '无效',
-        9: '锁定'
+        '0': '无效',
+        '1': '有效'
       }
       return statusMap[status]
     }

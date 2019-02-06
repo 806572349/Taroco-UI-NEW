@@ -57,6 +57,8 @@ service.interceptors.response.use(data => {
             errMsg = error.response.data.msg
           } else if (error.response.data && error.response.data.code === -199) {
             errMsg = error.response.data.msg
+          } else {
+            errMsg = error.response.data.msg
           }
           console.log(error.response.data)
           util.cookies.remove('token')

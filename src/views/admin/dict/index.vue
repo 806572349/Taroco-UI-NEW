@@ -199,8 +199,8 @@ export default {
   filters: {
     statusFilter (status) {
       const statusMap = {
-        0: '有效',
-        1: '无效'
+        '0': '无效',
+        '1': '有效'
       }
       return statusMap[status]
     }
