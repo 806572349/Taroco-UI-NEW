@@ -38,10 +38,10 @@
         </d2-crud>
 
         <!--表单-->
-        <el-dialog title="编辑商品" :visible.sync="dialogTableVisible" @close="formdialogclose">
+        <el-dialog title="编辑商品" :visible.sync="dialogTableVisible" :fullscreen="true" @close="formdialogclose">
             <el-form ref="goodsform" :model="goodsform" label-width="100px" :label-position="labelPosition">
                 <el-form-item label="商品名称:">
-                    <el-col :span="11">
+                    <el-col :span="3">
                         <el-input v-model="goodsform.goodsName"></el-input>
                     </el-col>
                 </el-form-item>
@@ -49,17 +49,17 @@
                     <el-input type="textarea" v-model="goodsform.goodsDesc"></el-input>
                 </el-form-item>
                 <el-form-item label="商品吊牌价:">
-                    <el-col :span="11">
+                    <el-col :span="3">
                         <el-input v-model="goodsform.displayPrice"></el-input>
                     </el-col>
                 </el-form-item>
                 <el-form-item label="商品销售价:">
-                    <el-col :span="11">
+                    <el-col :span="3">
                         <el-input v-model="goodsform.actualPrice"></el-input>
                     </el-col>
                 </el-form-item>
                 <el-form-item label="商品单位:">
-                    <el-col :span='11'>
+                    <el-col :span='3'>
                         <el-input v-model="goodsform.goodsUnit"></el-input>
                     </el-col>
                 </el-form-item>
@@ -69,12 +69,83 @@
                         <el-radio border :label="0">下架</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="是否多规格:">
+                <el-form-item label="商品规格:">
                     <el-radio-group v-model="goodsform.isSku" @change="isSkuChange" size="medium">
                         <el-radio border :label="0">默认</el-radio>
                         <el-radio border :label="1">多规格</el-radio>
                     </el-radio-group>
                 </el-form-item>
+                <el-form-item v-if="isattr===1">
+                    <el-form ref="goodskuattr" :model="goodsform.goodskuattrs" label-width="60px"
+                             :label-position="labelPosition">
+                        <el-form-item
+                                v-for="(domain, index) in goodsform.goodskuattrs.attr"
+                                :label="'规格' + index"
+                                :key="domain.key"
+                                :rules="{required: true, message: '规格不能为空', trigger: 'blur'}"
+                        >
+                            <el-col :span='2'>
+                                <el-select v-model="domain.attrDictId" placeholder="请选择" @change="attrSelectChange">
+                                    <el-option
+                                            v-for="item in attroptions"
+                                            :key="item.value"
+                                            :label="item.label"
+                                            :value="item.value"
+                                    >
+                                    </el-option>
+                                </el-select>
+                            </el-col>
+                            <el-col :span='2'>
+                                <el-button type="danger" icon="el-icon-delete"
+                                           @click.prevent="removeDomain(domain)"></el-button>
+                            </el-col>
+                            <el-col :span='2'>
+                                <el-button @click.prevent="addDomainValue(domain)">添加规格值</el-button>
+                            </el-col>
+                            <el-col :span='2'>
+                                <div v-for="(v, k) in domain.value">
+                                    <el-input v-model="v.v1"></el-input>
+                                    <el-button type="text" @click="deleteDomainValue(domain,v,k)">删除</el-button>
+                                </div>
+                            </el-col>
+                        </el-form-item>
+                    </el-form>
+                    <el-button @click="addDomain">添加规格</el-button>
+                    添加/删除规格后将影响原有规格值数据（货号、销售价、库存、重量等数据将清零），请谨慎操作。
+                </el-form-item>
+
+                <el-form-item label="价格库存:" v-if="isattr===1">
+                    批量填充:
+                    <el-form ref="goodsTemp" :model="goodsTemp" label-width="60px"
+                             label-position="top" :inline="true">
+                        <el-form-item>
+                            <el-input v-model="goodsTemp.number" placeholder="库存(件)"></el-input>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-input v-model="goodsTemp.displayPrice" placeholder="吊牌价(元)"></el-input>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-input v-model="goodsTemp.actualPrice" placeholder="销售价(元)"></el-input>
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-button type="success">确认填充</el-button>
+                        </el-form-item>
+                    </el-form>
+
+                    <!---->
+                    <div>
+                        <d2-crud
+                                :columns="skucolumns"
+                                :data="skuData"
+                                @cell-data-change="handleCellDataChange"
+                        />
+                    </div>
+
+                </el-form-item>
+
                 <el-form-item label="商品主图:">
                     <el-upload
                             class="avatar-uploader"
@@ -89,6 +160,7 @@
                 <el-form-item label="商品内容:">
                     <d2-ueditor v-model="goodsform.goodsContent"/>
                 </el-form-item>
+
                 <el-form-item>
                     <el-button type="primary" @click="createGoods">立即创建</el-button>
                     <el-button>取消</el-button>
@@ -134,6 +206,38 @@ export default {
       },
       labelPosition: 'right',
       dialogTableVisible: false,
+      attroptions: [{
+        value: '1',
+        label: '内存'
+      }, {
+        value: '2',
+        label: '尺寸'
+      }, {
+        value: '3',
+        label: '颜色'
+      }],
+      goodsTemp: {
+        number: undefined,
+        displayPrice: undefined,
+        actualPrice: undefined
+      },
+      tableData: [{
+        number: '2016-05-02',
+        displayPrice: '王小虎',
+        actualPrice: '上海市普陀区金沙江路 1518 弄'
+      }, {
+        number: '2016-05-02',
+        displayPrice: '王小虎',
+        actualPrice: '上海市普陀区金沙江路 1518 弄'
+      }, {
+        number: '2016-05-02',
+        displayPrice: '王小虎',
+        actualPrice: '上海市普陀区金沙江路 1518 弄'
+      }, {
+        number: '2016-05-02',
+        displayPrice: '王小虎',
+        actualPrice: '上海市普陀区金沙江路 1518 弄'
+      }],
       goodsform: {
         id: undefined,
         goodsName: undefined,
@@ -144,8 +248,24 @@ export default {
         goodsUnit: undefined,
         status: 1,
         isSku: 0,
-        goodsContent: ''
+        goodsContent: '',
+        goodsSpec: [{
+          value: ''
+        }],
+        goodskuattrs: {
+          attr: [{
+            attrDictId: '',
+            value: []
+
+          }],
+          domains: [{
+            value: ''
+          }]
+        }
+
       },
+      isattr: 0,
+      addattr: 0,
       columns: [
         {
           title: '商品名称',
@@ -202,6 +322,32 @@ export default {
         labelPosition: 'left',
         saveLoading: false
       },
+      skucolumns: [
+        {
+          title: '库存',
+          key: 'number',
+          component: {
+            name: 'el-input',
+            size: 'small'
+          }
+        },
+        {
+          title: '吊牌价',
+          key: 'displayPrice',
+          component: {
+            name: 'el-input',
+            size: 'small'
+          }
+        },
+        {
+          title: '销售价',
+          key: 'actualPrice',
+          component: {
+            name: 'el-input',
+            size: 'small'
+          }
+        }
+      ],
       editTemplate: {
         goodsName: {
           title: '规格名称',
@@ -242,6 +388,7 @@ export default {
           value: ''
         }
       },
+      skuData: [],
       data: [],
       formoptions: {
         labelWidth: '80px',
@@ -292,11 +439,104 @@ export default {
     createGoods () {
       console.log(this.goodsform)
     },
+    addGoodsSkuAttr () {
+
+    },
     statusChange (label) {
       console.log('statusChange', label)
     },
     isSkuChange (label) {
       console.log('isSkuChange', label)
+      this.isattr = label
+      if (label === 1) {
+        // this.goodsform.goodsSpec.push({
+        //     value: '',
+        //     key: Date.now()
+        // });
+
+      }
+    },
+    // 添加规格
+    addDomain () {
+      this.goodsform.goodskuattrs.attr.push({
+        attrDictId: '',
+        value: [{
+          v1: ''
+        }],
+        key: Date.now()
+      })
+    },
+    // 移除规格
+    removeDomain (item) {
+      var index = this.goodsform.goodskuattrs.attr.indexOf(item)
+      if (index !== -1) {
+        this.goodsform.goodskuattrs.attr.splice(index, 1)
+      }
+    },
+    // 添加规格值
+    addDomainValue (item) {
+      console.log('addDomainValue', item)
+      if (!item.attrDictId) {
+        console.log('未选择', item)
+        this.$message({
+          message: '未选择属性',
+          type: 'info'
+        })
+        return
+      }
+      var index = this.goodsform.goodskuattrs.attr.indexOf(item)
+      if (index !== -1) {
+        this.goodsform.goodskuattrs.attr[index].value.push({
+          v1: '',
+          key: Date.now()
+        })
+        this.changeSkucolumns(item)
+        this.changeSkuData()
+      }
+    },
+    // 删除规格值
+    deleteDomainValue (item, v, key) {
+      console.log('deleteDomainValue', item)
+      var index = this.goodsform.goodskuattrs.attr.indexOf(item)
+      if (index !== -1) {
+        this.goodsform.goodskuattrs.attr[index].value.splice(key, 1)
+      }
+    },
+    attrSelectChange (item) {
+      console.log('attrSelectChange', item)
+    },
+    // sku单元格编辑
+    handleCellDataChange ({rowIndex, key, value, row}) {
+      console.log(rowIndex)
+      console.log(key)
+      console.log(value)
+      console.log(row)
+    },
+    // 修改sku 单元格
+    changeSkucolumns (item) {
+      var item2 =
+                    {
+                      title: '内存',
+                      key: 'memory'
+                    }
+      var exist = this.skucolumns.findIndex((obj, objIndex, objs) => {
+        console.log('changeSkucolumns', obj, objIndex, objs)
+        return obj.key === 'memory'
+      })
+      console.log('changeSkucolumns', exist)
+      if (exist === -1) {
+        this.skucolumns.push(item2)
+      }
+    },
+    // 修改sku 数据库
+    changeSkuData () {
+      var item = {
+        number: '',
+        displayPrice: '',
+        actualPrice: '',
+        memory: '16G'
+      }
+      this.skuData.push(item)
     },
     formdialogclose () {
       console.log('formdialogclose关闭')
@@ -334,6 +574,7 @@ export default {
       return isJPG && isLt2M
     },
     handleCustomEvent ({index, row}) {
+      console.log('handleCustomEvent', row)
       this.dialogTableVisible = true
     },
     paginationCurrentChange (currentPage) {
