@@ -100,14 +100,18 @@
                                            @click.prevent="removeDomain(domain)"></el-button>
                             </el-col>
                             <el-col :span='2'>
-                                <el-button @click.prevent="addDomainValue(domain)">添加规格值</el-button>
-                            </el-col>
-                            <el-col :span='2'>
-                                <div v-for="(v, k) in domain.value">
+                                <div v-if="domain.value.length>1" v-for="(v, k) in domain.value">
                                     <el-input v-model="v.v1"></el-input>
                                     <el-button type="text" @click="deleteDomainValue(domain,v,k)">删除</el-button>
                                 </div>
+                                <div v-if="domain.value.length===1" v-for="(v, k) in domain.value">
+                                    <el-input v-model="v.v1"></el-input>
+                                </div>
                             </el-col>
+                            <el-col :span='2'>
+                                <el-button @click.prevent="addDomainValue(domain)">添加规格值</el-button>
+                            </el-col>
+
                         </el-form-item>
                     </el-form>
                     <el-button @click="addDomain">添加规格</el-button>
@@ -255,7 +259,9 @@ export default {
         goodskuattrs: {
           attr: [{
             attrDictId: '',
-            value: []
+            value: [{
+              v1: ''
+            }]
 
           }],
           domains: [{
@@ -488,10 +494,17 @@ export default {
       if (index !== -1) {
         this.goodsform.goodskuattrs.attr[index].value.push({
           v1: '',
-          key: Date.now()
+          key: item.attrDictId
         })
-        this.changeSkucolumns(item)
-        this.changeSkuData()
+        // 查找规格属性的标题
+        var arrindex = this.attroptions.findIndex((obj, objIndex, objs) => {
+          // console.log('attroptionsfindIndex', obj, objIndex, objs)
+          return obj.value === item.attrDictId
+        })
+        var title = this.attroptions[arrindex].label
+        this.addSkucolumns(item, title)
+
+        this.addSkuData(item)
       }
     },
     // 删除规格值
@@ -500,6 +513,7 @@ export default {
       var index = this.goodsform.goodskuattrs.attr.indexOf(item)
       if (index !== -1) {
         this.goodsform.goodskuattrs.attr[index].value.splice(key, 1)
+        this.deleteSkuData(item)
       }
     },
     attrSelectChange (item) {
@@ -512,31 +526,69 @@ export default {
       console.log(value)
       console.log(row)
     },
-    // 修改sku 单元格
-    changeSkucolumns (item) {
+    // 增加sku 单元格
+    addSkucolumns (item, title) {
+      console.log('addSkucolumns', item)
       var item2 =
                     {
-                      title: '内存',
-                      key: 'memory'
+                      title: title,
+                      key: item.attrDictId
                     }
       var exist = this.skucolumns.findIndex((obj, objIndex, objs) => {
-        console.log('changeSkucolumns', obj, objIndex, objs)
-        return obj.key === 'memory'
+        // console.log('changeSkucolumns', obj, objIndex, objs)
+        return obj.key === item.attrDictId
       })
       console.log('changeSkucolumns', exist)
       if (exist === -1) {
         this.skucolumns.push(item2)
       }
     },
-    // 修改sku 数据库
-    changeSkuData () {
+    // 增加sku 数据
+    addSkuData (item) {
+      console.log('addSkuData', item)
+
+      // var item = {
+      //   number: '',
+      //   displayPrice: '',
+      //   actualPrice: '',
+      // }
+      // if (this.skuData.length>0){
+      //     item=this.skuData[0];
+      // }
+      // //增加一个新的属性
+      // Object.defineProperty(item, data.attrDictId, {
+      //     value: '',
+      //     writable: true,
+      //     enumerable: true,
+      //     configurable: true
+      // })
+      // this.skuData.push(item)
+      this.deleteSkuData(item)
+    },
+    deleteSkuData (item) {
+      this.skuData = []
+      console.log('deleteSkuData', item)
+      item.value.forEach((a, index) => {
+        var data = this.buildSkuData(a, item, index)
+        console.log(data)
+        this.skuData.push(data)
+      })
+    },
+    buildSkuData (a, data, index) {
       var item = {
         number: '',
         displayPrice: '',
-        actualPrice: '',
-        memory: '16G'
+        actualPrice: ''
       }
-      this.skuData.push(item)
+
+      // 增加一个新的属性
+      Object.defineProperty(item, data.attrDictId + '', {
+        value: a.v1,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      })
+      return item
     },
     formdialogclose () {
       console.log('formdialogclose关闭')
