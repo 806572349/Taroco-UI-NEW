@@ -325,9 +325,10 @@ export default {
       this.dialogFormVisible = true
     },
     handleUpdate (row) {
-      console.log(row.roleList.length)
+      console.log('handleUpdate', row.roleList.length)
+      this.role = []
       for (var i = 0; i < row.roleList.length; i++) {
-        console.log(row.roleList[i].roleId)
+        console.log('for', row.roleList[i].roleId)
         this.role[i] = row.roleList[i].roleId
       }
       console.log(this.role)
@@ -368,8 +369,8 @@ export default {
     },
     update (formName) {
       const set = this.$refs
-      console.log('编辑', this.role)
-      this.form.role = this.role
+      console.log('编辑', this.role, formName)
+      // this.form.role = this.role
       set[formName].validate(valid => {
         if (valid) {
           this.dialogFormVisible = false

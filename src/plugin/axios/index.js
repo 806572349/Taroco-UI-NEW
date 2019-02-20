@@ -79,6 +79,9 @@ service.interceptors.response.use(data => {
         case 404:
           errMsg = '未找到该资源'
           break
+        case 417:
+          errMsg = error.response.data.msg
+          break
         case 405:
           errMsg = '请求方法未允许'
           break
